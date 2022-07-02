@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="RemoteTargetsManager">
+    <targets>
+      <target name="simon@slurm01:22" type="ssh/sftp" uuid="7991c55d-8279-4318-a5ed-5b94b633cbe8">
+        <config>
+          <option name="projectRootOnTarget" value="/home/simon/spank-go" />
+          <option name="serverName" value="simon@slurm01:22 key" />
+        </config>
+        <ContributedStateBase type="GoLanguageRuntime">
+          <config>
+            <option name="goPath" value="/home/simon/go" />
+            <option name="goRoot" value="/usr/local/go/bin/go" />
+            <option name="goVersion" value="go1.18.3 linux/amd64" />
+          </config>
+        </ContributedStateBase>
+      </target>
+      <target name="simon@slurm02:22" type="ssh/sftp" uuid="72de4663-8f22-4f38-896a-ff009163659a">
+        <config>
+          <option name="projectRootOnTarget" value="/home/simon/spank-go" />
+          <option name="serverName" value="simon@slurm02:22 key" />
+        </config>
+        <ContributedStateBase type="GoLanguageRuntime">
+          <config>
+            <option name="goPath" value="/home/simon/go" />
+            <option name="goRoot" value="/usr/local/go/bin/go" />
+            <option name="goVersion" value="go1.18.3 linux/amd64" />
+          </config>
+        </ContributedStateBase>
+      </target>
+    </targets>
+  </component>
+</project>
