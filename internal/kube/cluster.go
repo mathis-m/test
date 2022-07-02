@@ -91,17 +91,17 @@ func (cluster *KubernetesCluster) createSuperUserClient() (*kubernetes.Clientset
 }
 
 func (cluster *KubernetesCluster) Initialize() error {
-	// kubeadm init
+	// kubeadm cluster_initialize
 	cmd := fmt.Sprintf(
-		"kubeadm init --cri-socket=\"%v\" --pod-network-cidr=\"%v\" --token=\"%v\"",
+		"kubeadm cluster_initialize --cri-socket=\"%v\" --pod-network-cidr=\"%v\" --token=\"%v\"",
 		cluster.Socket,
 		cluster.PodNetworkCidr,
 		cluster.Token,
 	)
 
-	_, err := util.RunProcess("kubeadm init", cmd)
+	_, err := util.RunProcess("kubeadm cluster_initialize", cmd)
 	if err != nil {
-		return fmt.Errorf("util.RunProcess(kubeadm init): %w", err)
+		return fmt.Errorf("util.RunProcess(kubeadm cluster_initialize): %w", err)
 	}
 
 	// Remove control-plane taint
@@ -115,7 +115,7 @@ func (cluster *KubernetesCluster) Initialize() error {
 		return fmt.Errorf("util.RunProcess(kubectl taint): %w", err)
 	}
 
-	log.Info("kubeadm init finished")
+	log.Info("kubeadm cluster_initialize finished")
 	return nil
 }
 

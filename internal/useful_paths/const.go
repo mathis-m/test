@@ -13,6 +13,8 @@ const (
 	ScriptsBootstrapCluster = "bootstrap-cluster.sh"
 	ScriptsNsenter          = "nsenter.sh"
 	ScriptsKubelet          = "kubelet.sh"
+	ScriptsKubeadmPrepare   = "kubeadm-prepare.sh"
+	ScriptsKubeadmFinish    = "kubeadm-finish.sh"
 )
 
 const (

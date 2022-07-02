@@ -18,6 +18,8 @@ type UsefulPaths struct {
 		Rootlesskit      string
 		Containerd       string
 		BootstrapCluster string
+		KubeadmPrepare   string
+		KubeadmFinish    string
 		Nsenter          string
 		Kubelet          string
 	}
@@ -51,6 +53,8 @@ func ConstructUsefulPaths() (*UsefulPaths, error) {
 	paths.Scripts.BootstrapCluster = path.Join(scriptDir, ScriptsBootstrapCluster)
 	paths.Scripts.Nsenter = path.Join(scriptDir, ScriptsNsenter)
 	paths.Scripts.Kubelet = path.Join(scriptDir, ScriptsKubelet)
+	paths.Scripts.KubeadmPrepare = path.Join(scriptDir, ScriptsKubeadmPrepare)
+	paths.Scripts.KubeadmFinish = path.Join(scriptDir, ScriptsKubeadmFinish)
 
 	paths.Services.Rootlesskit = path.Join(systemdUserDir, ServicesRootlesskit)
 	paths.Services.Kubelet = path.Join(systemdUserDir, ServicesKubelet)

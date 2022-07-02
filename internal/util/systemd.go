@@ -64,3 +64,12 @@ func (service *Service) Restart() error {
 
 	return nil
 }
+
+func (service *Service) Reload() error {
+	cmdResult, err := RunCommand("systemctl", "--user", "reload", service.Name)
+	if err != nil || cmdResult.ExitCode != 0 {
+		return fmt.Errorf("unable to reload service %q: %w", service.Name, err)
+	}
+
+	return nil
+}

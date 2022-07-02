@@ -3,15 +3,6 @@
 export BASE_DIR=$(realpath $(dirname $0)/..)
 source $BASE_DIR/scripts/common.inc.sh
 
-# Kubeadm prepare
-$BASE_DIR/scripts/kubeadm-prepare.sh
-
-# Start kubelet in background
-$BASE_DIR/scripts/kubelet.sh &
-KUBELET_PID=$!
-
-# Kubeadm finish
-$BASE_DIR/scripts/kubeadm-finish.sh
-
-# Attach to kubelet
-wait $KUBELET_PID
+# Install flannel
+log::info "Step: Install Flannel"
+bash -c "$(dirname $0)/nsenter.sh kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml"
