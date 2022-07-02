@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"github.com/s-bauer/slurm-k8s/internal/kube"
 	"github.com/s-bauer/slurm-k8s/internal/slurm"
-	"github.com/s-bauer/slurm-k8s/internal/util"
 	"unsafe"
 )
 
 func Init(spank unsafe.Pointer) error {
-	if err := util.FixPathEnvironmentVariable(spank); err != nil {
+	if err := slurm.FixPathEnvironmentVariable(spank); err != nil {
 		return fmt.Errorf("util.FixPathEnvironmentVariable: %w", err)
 	}
 

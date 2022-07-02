@@ -1,17 +1,15 @@
-package util
+package slurm
 
-import "C"
 import (
 	"errors"
 	"fmt"
-	"github.com/s-bauer/slurm-k8s/internal/slurm"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"unsafe"
 )
 
 func FixPathEnvironmentVariable(spank unsafe.Pointer) error {
-	pathVar, err := slurm.GetSlurmEnvVar(spank, "PATH")
+	pathVar, err := GetSlurmEnvVar(spank, "PATH")
 	if err != nil {
 		return errors.New(fmt.Sprint("Unable to get PATH env var from slurm:", err))
 	}

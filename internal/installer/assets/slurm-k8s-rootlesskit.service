@@ -1,0 +1,8 @@
+[Unit]
+Description=RootlessKit service
+
+[Service]
+ExecStart={{ .Scripts.Rootlesskit }} {{ .Scripts.Containerd }}
+Delegate=yes
+Restart=on-failure
+LimitNOFILE=65536

@@ -1,0 +1,7 @@
+[Unit]
+Description=Kubelet service
+
+[Service]
+ExecStart={{ .Scripts.Kubelet }}
+Restart=on-failure
+LimitNOFILE=65536
