@@ -82,7 +82,7 @@ func RunProcessGetStdout(name string, command string) (string, error) {
 func RunCommand(command string, arguments ...string) (*CommandResult, error) {
 	cmd := exec.Command(command, arguments...)
 
-	log.Debugf("Executing command %v %v", command, arguments)
+	log.Debugf("Executing command %v", append([]string{command}, arguments...))
 
 	var outputBuffer bytes.Buffer
 	var stdoutBuffer bytes.Buffer

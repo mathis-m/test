@@ -1,4 +1,4 @@
-package cluster_initialize
+package cluster_join
 
 import (
 	"github.com/s-bauer/slurm-k8s/internal/util"

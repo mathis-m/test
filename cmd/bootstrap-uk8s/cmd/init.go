@@ -4,7 +4,6 @@ import (
 	"github.com/s-bauer/slurm-k8s/internal/cluster_initialize"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // initCmd represents the start command
@@ -20,6 +19,4 @@ var initCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(initCmd)
-
-	_ = viper.BindPFlags(startCmd.Flags())
 }
