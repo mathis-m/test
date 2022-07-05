@@ -3,7 +3,7 @@
 export BASE_DIR=$(realpath $(dirname $0)/..)
 source $BASE_DIR/scripts/common.inc.sh
 
-parent_ip=$(cat $XDG_RUNTIME_DIR/usernetes/parent_ip)
+parent_ip=$(cat $XDG_RUNTIME_DIR/slurm-k8s/parent_ip)
 
 exec $(dirname $0)/nsenter.sh /usr/local/bin/kubelet \
 	--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf \

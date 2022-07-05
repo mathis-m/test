@@ -24,9 +24,12 @@ import (
 func init() {
 	log.AddHook(&slurm.LogHook{})
 	log.SetFormatter(&log.TextFormatter{DisableColors: true})
+	log.SetLevel(log.DebugLevel)
 }
 
-//export slurm_spank_init_post_opt
+func main() {}
+
+// //export slurm_spank_init_post_opt
 func slurm_spank_init_post_opt(spank C.spank_t, ac C.int, av **C.char) C.int {
 	log.Info("slurm_spank_init_post_opt start")
 
@@ -48,10 +51,28 @@ func slurm_spank_init_post_opt(spank C.spank_t, ac C.int, av **C.char) C.int {
 
 	default:
 		log.Error(fmt.Sprintf("Unsupported Context: %v", uint32(ctx)))
-		return C.ESPANK_SUCCESS // TODO: Change to error
+		return C.ESPANK_SUCCESS
 
 	}
+}
 
+//export slurm_spank_user_init
+func slurm_spank_user_init(spank C.spank_t, ac C.int, av **C.char) C.int {
+	log.Info("slurm_spank_user_init start")
+
+	switch ctx := C.spank_context(); ctx {
+
+	case C.S_CTX_REMOTE:
+		if err := spank_remote.UserInit(unsafe.Pointer(&spank)); err != nil {
+			log.Error("spank_remote.UserInit: ", err)
+			return C.ESPANK_SUCCESS // TODO: Change to error
+		}
+		return C.ESPANK_SUCCESS
+
+	default:
+		log.Error(fmt.Sprintf("Unsupported Context: %v", uint32(ctx)))
+		return C.ESPANK_SUCCESS
+	}
 }
 
 //export slurm_spank_exit
@@ -76,7 +97,7 @@ func slurm_spank_exit(spank C.spank_t, ac C.int, av **C.char) C.int {
 
 	default:
 		log.Error(fmt.Sprintf("Unsupported Context: %v", uint32(ctx)))
-		return C.ESPANK_SUCCESS // TODO: Change to error
+		return C.ESPANK_SUCCESS
 
 	}
 

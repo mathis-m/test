@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/s-bauer/slurm-k8s/internal/util"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"
+	"syscall"
 
 	"github.com/spf13/cobra"
 )
@@ -18,6 +20,41 @@ var rootCmd = &cobra.Command{
 			log.SetLevel(log.DebugLevel)
 		} else {
 			log.SetLevel(log.InfoLevel)
+		}
+
+		if viper.GetBool("simple-log") {
+			log.SetFormatter(&log.TextFormatter{
+				DisableColors:    true,
+				DisableQuote:     true,
+				DisableTimestamp: true,
+			})
+		}
+
+		if !util.IsInNamespace() {
+			intendedUid := viper.GetInt("drop-uid")
+			intendedGid := viper.GetInt("drop-gid")
+
+			oldUid := syscall.Getuid()
+			oldGid := syscall.Getgid()
+
+			log.Infof("previous uid=%v, gid=%v", oldUid, oldGid)
+
+			if intendedUid >= 0 {
+				if err := syscall.Setreuid(intendedUid, intendedUid); err != nil {
+					log.Fatalf("unable to drop uid: %v", intendedUid)
+				}
+			}
+
+			if intendedGid >= 0 {
+				if err := syscall.Setregid(intendedGid, intendedGid); err != nil {
+					log.Fatalf("unable to drop gid: %v", intendedUid)
+				}
+			}
+
+			newUid := syscall.Getuid()
+			newGid := syscall.Getgid()
+
+			log.Infof("new uid=%v, gid=%v", newUid, newGid)
 		}
 	},
 }
@@ -33,6 +70,10 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "enable verbose output")
+	rootCmd.PersistentFlags().Bool("simple-log", false, "disabled fancy log formatting")
+
+	rootCmd.PersistentFlags().Int("drop-uid", -1, "drops the real and effective uid")
+	rootCmd.PersistentFlags().Int("drop-gid", -1, "drops the real and effective gid")
 
 	_ = viper.BindPFlags(rootCmd.PersistentFlags())
 }

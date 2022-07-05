@@ -55,12 +55,12 @@ function nsenter::_nsenter_retry_loop() {
 }
 
 function nsenter::_nsenter() {
-	local pidfile=$XDG_RUNTIME_DIR/usernetes/rootlesskit/child_pid
+	local pidfile=$XDG_RUNTIME_DIR/slurm-k8s/rootlesskit/child_pid
 	if ! [[ -f $pidfile ]]; then
 		return 1
 	fi
 
-	export ROOTLESSKIT_STATE_DIR=$XDG_RUNTIME_DIR/usernetes/rootlesskit
+	export ROOTLESSKIT_STATE_DIR=$XDG_RUNTIME_DIR/slurm-k8s/rootlesskit
 	nsenter --user --preserve-credential --mount --net --cgroup --pid --ipc --uts -t $(cat $pidfile) --wd=$PWD -- $@
 }
 

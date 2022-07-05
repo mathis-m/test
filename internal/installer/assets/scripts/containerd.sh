@@ -8,8 +8,8 @@
 export BASE_DIR=$(realpath $(dirname $0)/..)
 source $BASE_DIR/scripts/common.inc.sh
 
-mkdir -p $XDG_RUNTIME_DIR/usernetes
-cat >$XDG_RUNTIME_DIR/usernetes/containerd.toml <<EOF
+mkdir -p $XDG_RUNTIME_DIR/slurm-k8s
+cat >$XDG_RUNTIME_DIR/slurm-k8s/containerd.toml <<EOF
 version = 2
 [plugins]
   [plugins."io.containerd.grpc.v1.cri"]
@@ -22,4 +22,4 @@ version = 2
       conf_dir = "/etc/cni/net.d"
 EOF
 
-exec containerd -c $XDG_RUNTIME_DIR/usernetes/containerd.toml $@
+exec containerd -c $XDG_RUNTIME_DIR/slurm-k8s/containerd.toml $@

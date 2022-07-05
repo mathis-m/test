@@ -25,5 +25,9 @@ func childInitialize() error {
 	}
 	log.Infof("kubeadm join succeeded")
 
+	if err := util.WriteResult(util.ChildResult{}); err != nil {
+		return fmt.Errorf("unable to write result: %w", err)
+	}
+
 	return nil
 }

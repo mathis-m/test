@@ -78,11 +78,10 @@ func RunProcessGetStdout(name string, command string) (string, error) {
 	return string(output), nil
 }
 
-// RunCommand taken from https://github.com/kardianos/service and modified
 func RunCommand(command string, arguments ...string) (*CommandResult, error) {
 	cmd := exec.Command(command, arguments...)
 
-	log.Debugf("Executing command %v", append([]string{command}, arguments...))
+	log.Debugf("executing command %v", append([]string{command}, arguments...))
 
 	var outputBuffer bytes.Buffer
 	var stdoutBuffer bytes.Buffer
@@ -127,7 +126,6 @@ func RunCommand(command string, arguments ...string) (*CommandResult, error) {
 	return result, nil
 }
 
-// isExitError taken from https://github.com/kardianos/service and modified
 func isExitError(err error) (int, bool) {
 	if exitErr, ok := err.(*exec.ExitError); ok {
 		if status, ok := exitErr.Sys().(syscall.WaitStatus); ok {

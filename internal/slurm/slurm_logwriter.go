@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"os"
+	"strings"
 )
 
 type LogHook struct{}
@@ -15,12 +16,12 @@ func (hook *LogHook) Fire(entry *logrus.Entry) error {
 		return err
 	}
 
+	msg = strings.TrimRight(msg, "\r\n")
+
 	switch entry.Level {
-	case logrus.ErrorLevel:
-	case logrus.FatalLevel:
+	case logrus.ErrorLevel, logrus.FatalLevel:
 		WriteError(msg)
 		break
-	case logrus.InfoLevel:
 	default:
 		WriteInfo(msg)
 		break

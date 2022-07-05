@@ -8,19 +8,20 @@ import (
 
 func parentInitialize() error {
 	kubeletService := util.Service{Name: useful_paths.ServicesKubelet}
-	rootlessService := &util.Service{Name: useful_paths.ServicesRootlesskit}
-
-	if err := kubeletService.Start(); err != nil {
-		return err
-	}
-	log.Infof("started kubelet service")
+	rootlessService := util.Service{Name: useful_paths.ServicesRootlesskit}
 
 	if err := rootlessService.Start(); err != nil {
 		return err
 	}
 	log.Infof("started rootlesskit service")
+	
+	if err := kubeletService.Start(); err != nil {
+		return err
+	}
+	log.Infof("started kubelet service")
 
-	if err := util.ReexecuteInNamespace(); err != nil {
+	_, err := util.ReexecuteInNamespace()
+	if err != nil {
 		return err
 	}
 

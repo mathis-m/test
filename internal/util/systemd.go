@@ -18,8 +18,11 @@ const (
 
 func ReloadSystemdDaemon() error {
 	cmdResult, err := RunCommand("systemctl", "--user", "daemon-reload")
-	if err != nil || cmdResult.ExitCode != 0 {
-		return fmt.Errorf("unable to do reload systemctl daemon %w", err)
+	if err != nil {
+		return fmt.Errorf("unable to reload systemctl daemon:%w", err)
+	}
+	if cmdResult.ExitCode != 0 {
+		return fmt.Errorf("unable to reload systemctl daemon. exit code: %v", err)
 	}
 
 	return nil

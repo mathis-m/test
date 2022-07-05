@@ -1,7 +1,10 @@
 [Unit]
 Description=Kubelet service
+StartLimitIntervalSec=90
+StartLimitBurst=15
 
 [Service]
 ExecStart={{ .Scripts.Kubelet }}
 Restart=on-failure
+RestartSec=2
 LimitNOFILE=65536

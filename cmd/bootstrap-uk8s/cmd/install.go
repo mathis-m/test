@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/s-bauer/slurm-k8s/internal/installer"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 
 	"github.com/spf13/cobra"
 )
@@ -19,5 +20,9 @@ var installCmd = &cobra.Command{
 }
 
 func init() {
+	installCmd.Flags().Bool("force", false, "overwrite existing installation")
+
+	_ = viper.BindPFlags(installCmd.Flags())
+
 	rootCmd.AddCommand(installCmd)
 }

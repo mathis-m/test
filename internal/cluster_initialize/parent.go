@@ -17,9 +17,17 @@ func parentInitialize() error {
 		log.Fatal(err)
 	}
 
+	log.Debug("reloading systemd user daemon")
 	if err := util.ReloadSystemdDaemon(); err != nil {
 		return fmt.Errorf("unable to reload systemd daemon: %w", err)
 	}
+	log.Info("reloaded systemd user daemon")
+
+	if err := util.DeleteFileIfExists(usefulPaths.KubernetesUserConfig); err != nil {
+		return fmt.Errorf("unable to delete kubernetes config at %q: %w", usefulPaths.KubernetesUserConfig, err)
+	}
+
+	stopServices()
 
 	if err := startService(rootlessService); err != nil {
 		return err
@@ -44,9 +52,21 @@ func parentInitialize() error {
 	log.Info("parent bootstrap finished")
 	log.Info("starting child in namespace")
 
-	if err := util.ReexecuteInNamespace(); err != nil {
+	childResult, err := util.ReexecuteInNamespace()
+	if err != nil {
 		return err
 	}
+
+	log.Info("initialize succeeded")
+
+	localIp := util.GetLocalIP()
+	log.Infof("Use the following command to join a second computer:")
+	log.Infof(
+		"\t./bootstrap-uk8s join --api-server-endpoint %v:6443 --token %v --discovery-token-ca-cert-hash sha256:%v --verbose",
+		localIp,
+		childResult["token"],
+		childResult["certHash"],
+	)
 
 	return nil
 }
@@ -58,28 +78,36 @@ func kubeadmPrepare(usefulPaths *useful_paths.UsefulPaths) error {
 		return fmt.Errorf("failed to kubeadm-prepare: %w", err)
 	}
 
+	log.Info("completed kubeadm-prepare")
 	return nil
 }
 
 func kubeadmFinish(usefulPaths *useful_paths.UsefulPaths) error {
-	log.Info("executing kubeadm-prepare")
+	log.Info("executing kubeadm-finish")
 	cmdResult, err := util.RunCommand(usefulPaths.Scripts.KubeadmFinish)
 	if err != nil || cmdResult.ExitCode != 0 {
 		return fmt.Errorf("failed to kubeadm-finish: %w", err)
 	}
 
+	log.Info("completed kubeadm-finish")
 	return nil
 }
 
 func startService(service *util.Service) error {
+	logger := log.WithFields(log.Fields{"serviceName": service.Name})
+
+	logger.Debug("querying service status")
+
 	status, err := service.Status()
 	if err != nil {
 		return err
 	}
 
+	logger.Debugf("service status is: %v", status)
+
 	if status == util.Active {
 		if viper.GetBool("restart") {
-			log.Infof("service %q is running, stopping first...", service.Name)
+			logger.Info("service is running, stopping first...")
 			if err := service.Stop(); err != nil {
 				return err
 			}
@@ -88,10 +116,19 @@ func startService(service *util.Service) error {
 		}
 	}
 
+	logger.Debug("(re-)starting service")
 	if err := service.Start(); err != nil {
 		return err
 	}
 
-	log.Infof("started service %q", service.Name)
+	logger.Info("service started")
 	return nil
+}
+
+func stopServices() {
+	rootlessKit := &util.Service{Name: useful_paths.ServicesRootlesskit}
+	kubelet := &util.Service{Name: useful_paths.ServicesKubelet}
+
+	_ = kubelet.Stop()
+	_ = rootlessKit.Stop()
 }

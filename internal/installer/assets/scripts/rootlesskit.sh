@@ -6,7 +6,7 @@
 export BASE_DIR=$(realpath $(dirname $0)/..)
 source $BASE_DIR/scripts/common.inc.sh
 
-rk_state_dir=$XDG_RUNTIME_DIR/usernetes/rootlesskit
+rk_state_dir=$XDG_RUNTIME_DIR/slurm-k8s/rootlesskit
 
 : ${SLURM_K8S_CHILD=0}
 
@@ -36,7 +36,7 @@ if [[ $SLURM_K8S_CHILD == 0 ]]; then
 		$0 $@
 else
 	# save IP address
-	echo $SLURM_K8S_PARENT_IP > $XDG_RUNTIME_DIR/usernetes/parent_ip
+	echo $SLURM_K8S_PARENT_IP > $XDG_RUNTIME_DIR/slurm-k8s/parent_ip
 
 	# Remove symlinks so that the child won't be confused by the parent configuration
 	rm -f \

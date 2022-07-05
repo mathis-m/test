@@ -12,16 +12,17 @@ type UsefulPaths struct {
 	ScriptDir      string
 	SystemdUserDir string
 
-	KubeadmConfig string
+	KubeadmAdminConfig    string
+	KubernetesUserConfig  string
+	KubernetesAdminConfig string
 
 	Scripts struct {
-		Rootlesskit      string
-		Containerd       string
-		BootstrapCluster string
-		KubeadmPrepare   string
-		KubeadmFinish    string
-		Nsenter          string
-		Kubelet          string
+		Rootlesskit    string
+		Containerd     string
+		KubeadmPrepare string
+		KubeadmFinish  string
+		Nsenter        string
+		Kubelet        string
 	}
 	Services struct {
 		Rootlesskit string
@@ -46,11 +47,12 @@ func ConstructUsefulPaths() (*UsefulPaths, error) {
 		SystemdUserDir: systemdUserDir,
 	}
 
-	paths.KubeadmConfig = path.Join(baseDir, RelativePathKubeadmConfigFile)
+	paths.KubeadmAdminConfig = path.Join(baseDir, RelativePathKubeadmAdminConfigFile)
+	paths.KubernetesUserConfig = path.Join(homeDir, RelativePathKubernetesUserConfigFile)
+	paths.KubernetesAdminConfig = PathKubernetesAdminConfigFile
 
 	paths.Scripts.Rootlesskit = path.Join(scriptDir, ScriptsRootlessctl)
 	paths.Scripts.Containerd = path.Join(scriptDir, ScriptsContainerd)
-	paths.Scripts.BootstrapCluster = path.Join(scriptDir, ScriptsBootstrapCluster)
 	paths.Scripts.Nsenter = path.Join(scriptDir, ScriptsNsenter)
 	paths.Scripts.Kubelet = path.Join(scriptDir, ScriptsKubelet)
 	paths.Scripts.KubeadmPrepare = path.Join(scriptDir, ScriptsKubeadmPrepare)
