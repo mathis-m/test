@@ -41,6 +41,19 @@
           </config>
         </ContributedStateBase>
       </target>
+      <target name="simon@slurm05:222" type="ssh/sftp" uuid="a97c20e8-5698-4cfc-bd04-524750e96929">
+        <config>
+          <option name="projectRootOnTarget" value="/home/simon/spank-go" />
+          <option name="serverName" value="simon@slurm05:22" />
+        </config>
+        <ContributedStateBase type="GoLanguageRuntime">
+          <config>
+            <option name="goPath" value="/home/simon/go" />
+            <option name="goRoot" value="/usr/local/go/bin/go" />
+            <option name="goVersion" value="go1.18.3 linux/amd64" />
+          </config>
+        </ContributedStateBase>
+      </target>
     </targets>
   </component>
 </project>

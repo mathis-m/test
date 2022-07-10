@@ -21,6 +21,7 @@ type UsefulPaths struct {
 		Containerd     string
 		KubeadmPrepare string
 		KubeadmFinish  string
+		KubeadmToken   string
 		Nsenter        string
 		Kubelet        string
 	}
@@ -57,6 +58,7 @@ func ConstructUsefulPaths() (*UsefulPaths, error) {
 	paths.Scripts.Kubelet = path.Join(scriptDir, ScriptsKubelet)
 	paths.Scripts.KubeadmPrepare = path.Join(scriptDir, ScriptsKubeadmPrepare)
 	paths.Scripts.KubeadmFinish = path.Join(scriptDir, ScriptsKubeadmFinish)
+	paths.Scripts.KubeadmToken = path.Join(scriptDir, ScriptsKubeadmToken)
 
 	paths.Services.Rootlesskit = path.Join(systemdUserDir, ServicesRootlesskit)
 	paths.Services.Kubelet = path.Join(systemdUserDir, ServicesKubelet)

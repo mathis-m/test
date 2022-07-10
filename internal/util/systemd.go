@@ -59,6 +59,15 @@ func (service *Service) Stop() error {
 	return nil
 }
 
+func (service *Service) ResetFailed() error {
+	cmdResult, err := RunCommand("systemctl", "--user", "reset-failed", service.Name)
+	if err != nil || cmdResult.ExitCode != 0 {
+		return fmt.Errorf("unable to reset-failed service %q: %w", service.Name, err)
+	}
+
+	return nil
+}
+
 func (service *Service) Restart() error {
 	cmdResult, err := RunCommand("systemctl", "--user", "restart", service.Name)
 	if err != nil || cmdResult.ExitCode != 0 {

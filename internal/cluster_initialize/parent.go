@@ -49,6 +49,14 @@ func parentInitialize() error {
 		return err
 	}
 
+	bootstrapToken := viper.GetString("token")
+	log.Infof("user provided token: %v", bootstrapToken)
+	if bootstrapToken != "" {
+		if err := kubeadmToken(usefulPaths, bootstrapToken); err != nil {
+			return err
+		}
+	}
+
 	log.Info("parent bootstrap finished")
 	log.Info("starting child in namespace")
 
@@ -93,6 +101,17 @@ func kubeadmFinish(usefulPaths *useful_paths.UsefulPaths) error {
 	return nil
 }
 
+func kubeadmToken(usefulPaths *useful_paths.UsefulPaths, token string) error {
+	log.Info("executing kubeadm-token")
+	cmdResult, err := util.RunCommand(usefulPaths.Scripts.KubeadmToken, token)
+	if err != nil || cmdResult.ExitCode != 0 {
+		return fmt.Errorf("failed to kubeadm-token: %w", err)
+	}
+
+	log.Info("completed kubeadm-token")
+	return nil
+}
+
 func startService(service *util.Service) error {
 	logger := log.WithFields(log.Fields{"serviceName": service.Name})
 
@@ -131,4 +150,7 @@ func stopServices() {
 
 	_ = kubelet.Stop()
 	_ = rootlessKit.Stop()
+
+	_ = kubelet.ResetFailed()
+	_ = rootlessKit.ResetFailed()
 }

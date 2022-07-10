@@ -1,27 +1,10 @@
 package slurm
 
 /*
-
 #include <stdlib.h>
 #include <stdint.h>
 #include <slurm/spank.h>
-
-typedef spank_t SpankT;
-
-void slurm_info_wrapper(const char *string) {
-    slurm_info("%s", string);
-}
-
-void slurm_error_wrapper(const char *string) {
-    slurm_error("%s", string);
-}
-
-spank_err_t spank_get_item_uint32(spank_t spank, spank_item_t item, uid_t *result) {
-	return spank_get_item(spank, item, result);
-}
-
-SPANK_PLUGIN(kubernetes, 1);
-
+#include <types.h>
 */
 import "C"
 
@@ -29,6 +12,23 @@ import (
 	"fmt"
 	"unsafe"
 )
+
+type Option struct {
+	Name    string
+	ArgInfo string
+	Usage   string
+
+	// Value a unique id for this spank plugin to identify the parameter
+	Value int
+
+	// HasArg
+	// - 0 if no arguments
+	// - 1 if argument is required
+	// - 2 if argument is optional
+	HasArg int
+
+	Callback func(val int, optArg string, remote int)
+}
 
 func WriteInfo(msg string) {
 	cStr := C.CString(msg)
@@ -70,4 +70,49 @@ func GetSlurmEnvVar(spank unsafe.Pointer, name string) (string, error) {
 	}
 
 	return C.GoString(&buf[0]), nil
+}
+
+var optionCallbacks = make(map[int]func(val int, optArg string, remote int))
+
+func RegisterOption(spank unsafe.Pointer, option *Option) error {
+	spankTyped := *(*C.spank_t)(spank)
+
+	cName := C.CString(option.Name)
+	defer C.free(unsafe.Pointer(cName))
+
+	cUsage := C.CString(option.Usage)
+	defer C.free(unsafe.Pointer(cUsage))
+
+	cArgInfo := C.CString(option.ArgInfo)
+	defer C.free(unsafe.Pointer(cArgInfo))
+
+	cOption := &C.struct_spank_option{
+		name:    cName,
+		arginfo: cArgInfo,
+		usage:   cUsage,
+		has_arg: C.int(option.HasArg),
+		val:     C.int(option.Value),
+		cb:      C.spank_opt_cb_f(C.optionCallback_cgo),
+	}
+
+	optionCallbacks[option.Value] = option.Callback
+
+	result := C.spank_option_register(spankTyped, cOption)
+	switch result {
+	case C.ESPANK_SUCCESS:
+		return nil
+	default:
+		return fmt.Errorf("unable to add slurm option")
+	}
+}
+
+//export optionCallback
+func optionCallback(value C.int, optarg *C.char, remote C.int) {
+	goOptArg := string(C.GoString(optarg))
+	goValue := int(value)
+	goRemote := int(remote)
+
+	if callback, ok := optionCallbacks[goValue]; ok {
+		callback(goValue, goOptArg, goRemote)
+	}
 }

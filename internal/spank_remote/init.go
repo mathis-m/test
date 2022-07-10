@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/s-bauer/slurm-k8s/internal/slurm"
 	"github.com/s-bauer/slurm-k8s/internal/util"
+	"github.com/spf13/viper"
 	"unsafe"
 )
 
@@ -55,6 +56,18 @@ func Init(spank unsafe.Pointer) error {
 }
 
 func UserInit(spank unsafe.Pointer) error {
+	initCluster := viper.GetBool("k8s-init-cluster")
+	joinCluster := viper.GetBool("k8s-join-cluster")
+
+	bootstrapToken, err := slurm.GetSlurmEnvVar(spank, "SLURM_K8S_BOOTSTRAP_TOKEN")
+	if err != nil {
+		return fmt.Errorf("unable to retrieve SLURM_K8S_BOOTSTRAP_TOKEN env var: %w", err)
+	}
+
+	if !initCluster && !joinCluster {
+		return nil
+	}
+
 	if err := slurm.FixEnvironmentVariables(spank, importantEnvVars); err != nil {
 		return fmt.Errorf("util.FixPathEnvironmentVariable: %w", err)
 	}
@@ -63,61 +76,6 @@ func UserInit(spank unsafe.Pointer) error {
 	if err != nil {
 		return fmt.Errorf("slurm.GetJobUser: %w", err)
 	}
-
-	// save existing ids
-	//savedUid := syscall.Getuid()
-	//log.Infof("getuid: %v", savedUid)
-	//
-	//savedEuid := syscall.Geteuid()
-	//log.Infof("geteuid: %v", savedEuid)
-	//
-	//savedGid := syscall.Getgid()
-	//log.Infof("getgid: %v", savedGid)
-	//
-	//savedEgid := syscall.Getegid()
-	//log.Infof("getegid: %v", savedEgid)
-	//
-	//savedGroups, err := syscall.Getgroups()
-	//if err != nil {
-	//	log.Infof("getgroups: error: %v", err)
-	//}
-	//log.Infof("getgroups: %v", savedGroups)
-	//
-	//// drop privileges
-	//newUid, err := strconv.Atoi(jobUser.Uid)
-	//if err != nil {
-	//	return fmt.Errorf("unable to convert uid %q to int", newUid)
-	//}
-	//
-	//newGid, err := strconv.Atoi(jobUser.Gid)
-	//if err != nil {
-	//	return fmt.Errorf("unable to convert gid %q to int", newGid)
-	//}
-	//
-	//if err := syscall.Setregid(newUid, newUid); err != nil {
-	//	log.Warnf("Setegid failed: %v", err)
-	//}
-	//
-	//if err := syscall.Setreuid(newGid, newGid); err != nil {
-	//	log.Warnf("Seteuid failed: %v", err)
-	//}
-
-	// Run test command
-	//cmd := exec.Command("bash", "-c", "systemctl --user is-active containerd")
-	//output, err := cmd.CombinedOutput()
-	//if err != nil {
-	//	log.Infof("command failed with: %v", err)
-	//}
-	//log.Infof("Output: %v", string(output))
-
-	// regain privileges - DOESN'T WORK!
-	//if err := syscall.Setregid(savedGid, savedGid); err != nil {
-	//	log.Warnf("Setregid failed: %v", err)
-	//}
-	//
-	//if err := syscall.Setreuid(savedUid, savedUid); err != nil {
-	//	log.Warnf("Setregid failed: %v", err)
-	//}
 
 	// run install
 	cmdResult, err := util.RunCommand(
@@ -144,11 +102,11 @@ func UserInit(spank unsafe.Pointer) error {
 		fmt.Sprintf("--drop-uid=%v", jobUser.Uid),
 		fmt.Sprintf("--drop-gid=%v", jobUser.Gid),
 		"init",
+		fmt.Sprintf("--token=%v", bootstrapToken),
 	)
 	if err != nil {
 		return fmt.Errorf("init failed: %w", err)
 	}
-
 	if cmdResult.ExitCode != 0 {
 		return fmt.Errorf("init failed")
 	}

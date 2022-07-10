@@ -17,6 +17,7 @@ const (
 	ScriptsKubelet        = "kubelet.sh"
 	ScriptsKubeadmPrepare = "kubeadm-prepare.sh"
 	ScriptsKubeadmFinish  = "kubeadm-finish.sh"
+	ScriptsKubeadmToken   = "kubeadm-token.sh"
 )
 
 const (

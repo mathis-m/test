@@ -16,6 +16,9 @@ var joinCmd = &cobra.Command{
 			log.Fatalf("failed to join cluster: %v", err)
 		}
 	},
+	PreRun: func(cmd *cobra.Command, args []string) {
+		_ = viper.BindPFlags(cmd.Flags())
+	},
 }
 
 func init() {
@@ -28,6 +31,4 @@ func init() {
 	_ = joinCmd.MarkFlagRequired("token")
 	_ = joinCmd.MarkFlagRequired("discovery-token-ca-cert-hash")
 	_ = joinCmd.MarkFlagRequired("api-server-endpoint")
-
-	_ = viper.BindPFlags(joinCmd.Flags())
 }
