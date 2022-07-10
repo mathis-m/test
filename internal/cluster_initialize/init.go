@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/s-bauer/slurm-k8s/internal/installer"
 	"github.com/s-bauer/slurm-k8s/internal/util"
+	"os"
+	"strconv"
 )
 
 // Initialize uses viper options:
@@ -25,9 +27,24 @@ func Initialize() error {
 			return err
 		}
 	} else {
-		if err := childInitialize(); err != nil {
-			return err
+		phase, err := strconv.Atoi(os.Getenv("SLURM_K8S_CHILD_PHASE"))
+		if err != nil {
+			return fmt.Errorf("unable to determine child phase")
 		}
+
+		switch phase {
+		case 1:
+			if err := childPhase1(); err != nil {
+				return err
+			}
+		case 2:
+			if err := childPhase2(); err != nil {
+				return err
+			}
+		default:
+			return fmt.Errorf("unknown child phase: %v", phase)
+		}
+
 	}
 
 	return nil

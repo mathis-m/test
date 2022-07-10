@@ -25,4 +25,6 @@ func init() {
 	rootCmd.AddCommand(initCmd)
 
 	initCmd.Flags().String("token", "", "the bootstrap token")
+	initCmd.Flags().String("ca-cert-b64", "", "the base64 encoded CA certificate")
+	initCmd.Flags().String("ca-key-b64", "", "the base64 encoded CA private key")
 }

@@ -60,7 +60,7 @@ func GetSlurmEnvVar(spank unsafe.Pointer, name string) (string, error) {
 	nameC := C.CString(name)
 	defer C.free(unsafe.Pointer(nameC))
 
-	const bufSize = 2048
+	const bufSize = 16 * 1024
 	var buf [bufSize]C.char
 
 	statusC := C.spank_getenv(*(*C.spank_t)(spank), nameC, &buf[0], bufSize)

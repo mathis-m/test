@@ -92,9 +92,11 @@ func slurm_spank_init_post_opt(spank C.spank_t, ac C.int, av **C.char) C.int {
 	}
 }
 
-//export slurm_spank_task_init
-func slurm_spank_task_init(spank C.spank_t, ac C.int, av **C.char) C.int {
-	log.Info("slurm_spank_task_init start")
+// export slurm_spank_task_init
+
+//export slurm_spank_user_init
+func slurm_spank_user_init(spank C.spank_t, ac C.int, av **C.char) C.int {
+	log.Info("slurm_spank_user_init start")
 
 	switch ctx := C.spank_context(); ctx {
 	case C.S_CTX_REMOTE:

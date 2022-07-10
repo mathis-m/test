@@ -33,6 +33,12 @@ func parentInitialize() error {
 		return err
 	}
 
+	log.Info("child phase #1")
+
+	if _, err := util.ReexecuteInNamespace([]string{"SLURM_K8S_CHILD_PHASE=1"}); err != nil {
+		return err
+	}
+
 	if err := kubeadmPrepare(usefulPaths); err != nil {
 		return err
 	}
@@ -57,10 +63,9 @@ func parentInitialize() error {
 		}
 	}
 
-	log.Info("parent bootstrap finished")
-	log.Info("starting child in namespace")
+	log.Info("child phase #2")
 
-	childResult, err := util.ReexecuteInNamespace()
+	childResult, err := util.ReexecuteInNamespace([]string{"SLURM_K8S_CHILD_PHASE=2"})
 	if err != nil {
 		return err
 	}

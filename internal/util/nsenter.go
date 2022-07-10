@@ -46,7 +46,7 @@ func WriteResult(msg ChildResult) error {
 	return nil
 }
 
-func ReexecuteInNamespace() (ChildResult, error) {
+func ReexecuteInNamespace(additionalEnvVars []string) (ChildResult, error) {
 	pipeR, pipeW, err := os.Pipe()
 	if err != nil {
 		return nil, fmt.Errorf("unable to create pipe: %w", err)
@@ -103,6 +103,7 @@ func ReexecuteInNamespace() (ChildResult, error) {
 	cmd.Stderr = os.Stderr
 	cmd.ExtraFiles = []*os.File{pipeW}
 	cmd.Env = append(os.Environ(), fmt.Sprintf("%v=%v", PipeEnvKey, "3"))
+	cmd.Env = append(cmd.Env, additionalEnvVars...)
 
 	if err := cmd.Start(); err != nil {
 		return nil, fmt.Errorf("unable to start command: %w", err)

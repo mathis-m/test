@@ -14,13 +14,13 @@ func parentInitialize() error {
 		return err
 	}
 	log.Infof("started rootlesskit service")
-	
+
 	if err := kubeletService.Start(); err != nil {
 		return err
 	}
 	log.Infof("started kubelet service")
 
-	_, err := util.ReexecuteInNamespace()
+	_, err := util.ReexecuteInNamespace(nil)
 	if err != nil {
 		return err
 	}

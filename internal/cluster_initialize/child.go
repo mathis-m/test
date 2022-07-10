@@ -2,10 +2,13 @@ package cluster_initialize
 
 import (
 	_ "embed"
+	"encoding/base64"
 	"fmt"
 	"github.com/s-bauer/slurm-k8s/internal/useful_paths"
 	"github.com/s-bauer/slurm-k8s/internal/util"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+	"io/ioutil"
 	"os"
 	"path"
 )
@@ -15,7 +18,19 @@ var (
 	slurmK8sManager string
 )
 
-func childInitialize() error {
+func childPhase1() error {
+	if err := saveCa(); err != nil {
+		return err
+	}
+
+	if err := util.WriteResult(util.ChildResult{}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func childPhase2() error {
 	if err := os.Setenv("KUBECONFIG", "/etc/kubernetes/admin.conf"); err != nil {
 		return fmt.Errorf("unable to set KUBECONFIG env var: %w", err)
 	}
@@ -69,6 +84,36 @@ func childInitialize() error {
 	}
 
 	log.Info("wrote result. exiting...")
+
+	return nil
+}
+
+func saveCa() error {
+	certB64 := viper.GetString("ca-cert-b64")
+	keyB64 := viper.GetString("ca-key-b64")
+
+	key, err := base64.StdEncoding.DecodeString(keyB64)
+	if err != nil {
+		return fmt.Errorf("unable to decode ca-key base64: %w", err)
+	}
+
+	cert, err := base64.StdEncoding.DecodeString(certB64)
+	if err != nil {
+		return fmt.Errorf("unable to decode ca-cert base64: %w", err)
+	}
+
+	pkiFolder := "/etc/kubernetes/pki"
+	if err := util.EnsureFolderExistsWithPermissions(pkiFolder, 0751); err != nil {
+		return fmt.Errorf("unable to create folder %v: %w", pkiFolder, err)
+	}
+
+	if err := ioutil.WriteFile(path.Join(pkiFolder, "ca.crt"), cert, 0611); err != nil {
+		return fmt.Errorf("unable to create ca.crt: %w", err)
+	}
+
+	if err := ioutil.WriteFile(path.Join(pkiFolder, "ca.key"), key, 0600); err != nil {
+		return fmt.Errorf("unable to create ca.key: %w", err)
+	}
 
 	return nil
 }
