@@ -10,6 +10,12 @@ func parentInitialize() error {
 	kubeletService := util.Service{Name: useful_paths.ServicesKubelet}
 	rootlessService := util.Service{Name: useful_paths.ServicesRootlesskit}
 
+	_ = rootlessService.Stop()
+	_ = kubeletService.Stop()
+
+	_ = rootlessService.ResetFailed()
+	_ = kubeletService.ResetFailed()
+
 	if err := rootlessService.Start(); err != nil {
 		return err
 	}

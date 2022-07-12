@@ -62,6 +62,42 @@ func slurm_spank_init(spank C.spank_t, ac C.int, av **C.char) C.int {
 		},
 	})
 
+	_ = slurm.RegisterOption(spankUnsafe, &slurm.Option{
+		Name:    "k8s-join-token",
+		ArgInfo: "",
+		Usage:   "The bootstrap token required to join an additional node",
+		Value:   2,
+		HasArg:  1,
+		Callback: func(val int, optArg string, remote int) {
+			viper.Set("k8s-join-token", optArg)
+			log.Info("OPTION: k8s-join-token set")
+		},
+	})
+
+	_ = slurm.RegisterOption(spankUnsafe, &slurm.Option{
+		Name:    "k8s-join-cert-hash",
+		ArgInfo: "",
+		Usage:   "The certificate hash (without the sha256 prefix) to validate the control plane identity",
+		Value:   3,
+		HasArg:  1,
+		Callback: func(val int, optArg string, remote int) {
+			viper.Set("k8s-join-cert-hash", optArg)
+			log.Info("OPTION: k8s-join-cert-hash set")
+		},
+	})
+
+	_ = slurm.RegisterOption(spankUnsafe, &slurm.Option{
+		Name:    "k8s-join-api-server",
+		ArgInfo: "",
+		Usage:   "The control-plane api server endpoint (usually the node hostname) without the port",
+		Value:   4,
+		HasArg:  1,
+		Callback: func(val int, optArg string, remote int) {
+			viper.Set("k8s-join-api-server", optArg)
+			log.Info("OPTION: k8s-join-api-server set")
+		},
+	})
+
 	return C.ESPANK_SUCCESS
 }
 

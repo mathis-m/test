@@ -4,7 +4,6 @@ import "C"
 import (
 	"fmt"
 	"github.com/s-bauer/slurm-k8s/internal/slurm"
-	"github.com/s-bauer/slurm-k8s/internal/useful_paths"
 	"github.com/s-bauer/slurm-k8s/internal/util"
 	"unsafe"
 )
@@ -14,15 +13,27 @@ func Exit(spank unsafe.Pointer) error {
 		return fmt.Errorf("util.FixPathEnvironmentVariable: %w", err)
 	}
 
-	// stopServices()
+	// prepare
+	jobUser, err := slurm.GetJobUser(spank)
+	if err != nil {
+		return fmt.Errorf("slurm.GetJobUser: %w", err)
+	}
+
+	// run uninstall
+	cmdResult, err := util.RunCommand(
+		"/home/simon/spank-go/bin/bootstrap-uk8s",
+		"--verbose",
+		"--simple-log",
+		fmt.Sprintf("--drop-uid=%v", jobUser.Uid),
+		fmt.Sprintf("--drop-gid=%v", jobUser.Gid),
+		"uninstall",
+	)
+	if err != nil {
+		return fmt.Errorf("uninstall failed: %w", err)
+	}
+	if cmdResult.ExitCode != 0 {
+		return fmt.Errorf("uninstall failed")
+	}
 
 	return nil
-}
-
-func stopServices() {
-	rootlessKit := &util.Service{Name: useful_paths.ServicesRootlesskit}
-	kubelet := &util.Service{Name: useful_paths.ServicesKubelet}
-
-	_ = kubelet.Stop()
-	_ = rootlessKit.Stop()
 }

@@ -12,6 +12,10 @@ spank_err_t spank_get_item_uint32(spank_t spank, spank_item_t item, uid_t *resul
 	return spank_get_item(spank, item, result);
 }
 
+spank_err_t spank_get_item_char_array(spank_t spank, spank_item_t item, char ***result) {
+	return spank_get_item(spank, item, result);
+}
+
 void optionCallback_cgo(int value, char *optarg, int remote) {
     optionCallback(value, optarg, remote);
 }

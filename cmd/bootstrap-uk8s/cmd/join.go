@@ -12,7 +12,7 @@ var joinCmd = &cobra.Command{
 	Use:   "join",
 	Short: "Joins a node to the kubernetes cluster",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := cluster_join.Initialize(); err != nil {
+		if err := cluster_join.Join(); err != nil {
 			log.Fatalf("failed to join cluster: %v", err)
 		}
 	},

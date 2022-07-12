@@ -16,9 +16,14 @@ import (
 
 func Init(spank unsafe.Pointer) error {
 	initCluster := viper.GetBool("k8s-init-cluster")
+	joinCluster := viper.GetBool("k8s-join-cluster")
 
 	if initCluster {
-		if err := runInitCluster(); err != nil {
+		if err := runInitCluster(spank); err != nil {
+			return err
+		}
+	} else if joinCluster {
+		if err := runJoinCluster(spank); err != nil {
 			return err
 		}
 	}
@@ -26,47 +31,106 @@ func Init(spank unsafe.Pointer) error {
 	return nil
 }
 
-func runInitCluster() error {
-	if err := generateToken(); err != nil {
-		return err
-	}
+func runJoinCluster(spank unsafe.Pointer) error {
+	joinToken := viper.GetString("k8s-join-token")
+	certHash := viper.GetString("k8s-join-cert-hash")
+	apiEndpoint := viper.GetString("k8s-join-api-server")
 
-	if err := generateCaCert(); err != nil {
+	if err := setEnvironmentVariables(environmentVariables{
+		Token:       joinToken,
+		CaCertHash:  certHash,
+		ApiEndpoint: apiEndpoint,
+	}); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func generateToken() error {
+func runInitCluster(spank unsafe.Pointer) error {
+	joinToken, err := generateToken()
+	if err != nil {
+		return err
+	}
+
+	cert, err := generateCaCert()
+	if err != nil {
+		return err
+	}
+
+	if err := setEnvironmentVariables(environmentVariables{
+		Token:      joinToken,
+		CaCertHash: cert.CaCertHash,
+		CaKeyB64:   cert.CaKeyB64,
+		CaCertB64:  cert.CaCertB64,
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type environmentVariables struct {
+	Token       string
+	CaCertB64   string
+	CaKeyB64    string
+	CaCertHash  string
+	ApiEndpoint string
+}
+
+func setEnvironmentVariables(vars environmentVariables) error {
+	envVars := map[string]string{
+		"SLURM_K8S_BOOTSTRAP_TOKEN": vars.Token,
+		"SLURM_K8S_CA_CERT_HASH":    vars.CaCertHash,
+		"SLURM_K8S_CA_CERT":         vars.CaCertB64,
+		"SLURM_K8S_CA_KEY":          vars.CaKeyB64,
+		"SLURM_K8S_API_ENDPOINT":    vars.ApiEndpoint,
+	}
+
+	for key, value := range envVars {
+		if value == "" {
+			continue
+		}
+
+		if err := os.Setenv(key, value); err != nil {
+			return fmt.Errorf("unable to set environment variable %q: %w", key, err)
+		}
+
+		log.Infof("%v: %v", key, value)
+	}
+
+	return nil
+}
+
+func generateToken() (string, error) {
 	bootstrapToken, err := bootstraputil.GenerateBootstrapToken()
 	if err != nil {
-		return fmt.Errorf("unable to generate bootstrap token: %w", err)
+		return "", fmt.Errorf("unable to generate bootstrap token: %w", err)
 	}
 
-	if err := os.Setenv("SLURM_K8S_BOOTSTRAP_TOKEN", bootstrapToken); err != nil {
-		return fmt.Errorf("unable to set environment variable: %w", err)
-	}
-
-	log.Infof("SLURM_K8S_BOOTSTRAP_TOKEN: %v", bootstrapToken)
-
-	return nil
+	return bootstrapToken, nil
 }
 
-func generateCaCert() error {
+type kubeCert struct {
+	CaCertB64  string
+	CaKeyB64   string
+	CaCertHash string
+}
+
+func generateCaCert() (kubeCert, error) {
 	homeDir := os.Getenv("HOME")
 
 	certDir, err := os.MkdirTemp(homeDir, "tmp-ca")
 	if err != nil {
-		return err
+		return kubeCert{}, err
 	}
 
 	cmdResult, err := util.RunCommand("kubeadm", "init", "phase", "certs", "ca", "--cert-dir", path.Join(homeDir, certDir))
 	if err != nil {
-		return err
+		return kubeCert{}, err
 	}
 	if cmdResult.ExitCode != 0 {
-		return fmt.Errorf("kubeadm failed with exit code: %v", cmdResult.ExitCode)
+		return kubeCert{}, fmt.Errorf("kubeadm failed with exit code: %v", cmdResult.ExitCode)
 	}
 
 	certPath := path.Join(homeDir, certDir, "ca.crt")
@@ -74,16 +138,16 @@ func generateCaCert() error {
 
 	certContent, err := ioutil.ReadFile(certPath)
 	if err != nil {
-		return err
+		return kubeCert{}, err
 	}
 
 	keyContent, err := ioutil.ReadFile(keyPath)
 	if err != nil {
-		return err
+		return kubeCert{}, err
 	}
 
 	if err := os.RemoveAll(path.Join(homeDir, certDir)); err != nil {
-		return err
+		return kubeCert{}, err
 	}
 
 	log.Infof(
@@ -96,26 +160,12 @@ func generateCaCert() error {
 
 	certHash, err := util.CalculatePublicKeyHash(certContent)
 	if err != nil {
-		return err
+		return kubeCert{}, err
 	}
 
-	// log
-	log.Infof("SLURM_K8S_CA_CERT: %v", certB64)
-	log.Infof("SLURM_K8S_CA_KEY: %v", keyB64)
-	log.Infof("SLURM_K8S_CA_CERT_HASH=%v", certHash)
-
-	// set environment variables
-	if err := os.Setenv("SLURM_K8S_CA_CERT", certB64); err != nil {
-		return fmt.Errorf("unable to set environment variable: %w", err)
-	}
-
-	if err := os.Setenv("SLURM_K8S_CA_KEY", keyB64); err != nil {
-		return fmt.Errorf("unable to set environment variable: %w", err)
-	}
-
-	if err := os.Setenv("SLURM_K8S_CA_CERT_HASH", certHash); err != nil {
-		return fmt.Errorf("unable to set environment variable: %w", err)
-	}
-
-	return nil
+	return kubeCert{
+		CaCertB64:  certB64,
+		CaKeyB64:   keyB64,
+		CaCertHash: certHash,
+	}, nil
 }

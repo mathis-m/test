@@ -6,9 +6,7 @@ import (
 	"github.com/s-bauer/slurm-k8s/internal/util"
 )
 
-// Initialize uses viper options:
-//    - restart
-func Initialize() error {
+func Join() error {
 	isChild := util.IsInNamespace()
 
 	if !isChild {

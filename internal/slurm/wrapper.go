@@ -72,6 +72,29 @@ func GetSlurmEnvVar(spank unsafe.Pointer, name string) (string, error) {
 	return C.GoString(&buf[0]), nil
 }
 
+func GetSlurmEnvVars(spank unsafe.Pointer) ([]string, error) {
+	var envVars **C.char
+
+	statusC := C.spank_get_item_char_array(*(*C.spank_t)(spank), C.S_JOB_ENV, &envVars)
+	status := int(statusC)
+	if status > 0 {
+		return nil, fmt.Errorf("spank_get_item_char_array failed with code %d", status)
+	}
+
+	iteratorPtr := unsafe.Pointer(envVars)
+	itemSize := unsafe.Sizeof(*envVars)
+
+	var result []string
+	for *(**C.char)(iteratorPtr) != nil {
+		item := C.GoString(*(**C.char)(iteratorPtr))
+		result = append(result, item)
+
+		iteratorPtr = unsafe.Add(iteratorPtr, itemSize)
+	}
+
+	return result, nil
+}
+
 var optionCallbacks = make(map[int]func(val int, optArg string, remote int))
 
 func RegisterOption(spank unsafe.Pointer, option *Option) error {

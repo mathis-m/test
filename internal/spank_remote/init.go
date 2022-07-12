@@ -3,10 +3,12 @@ package spank_remote
 import "C"
 import (
 	"fmt"
+	"github.com/abrekhov/hostlist"
 	"github.com/s-bauer/slurm-k8s/internal/slurm"
 	"github.com/s-bauer/slurm-k8s/internal/util"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"os"
 	"unsafe"
 )
 
@@ -57,6 +59,15 @@ func Init(spank unsafe.Pointer) error {
 }
 
 func UserInit(spank unsafe.Pointer) error {
+	// debug tmp
+	slurmVars, err := slurm.GetSlurmEnvVars(spank)
+	if err != nil {
+		return err
+	}
+	for _, env := range slurmVars {
+		log.Infof("SLURM: %v", env)
+	}
+
 	initCluster := viper.GetBool("k8s-init-cluster")
 	joinCluster := viper.GetBool("k8s-join-cluster")
 
@@ -69,6 +80,119 @@ func UserInit(spank unsafe.Pointer) error {
 		return fmt.Errorf("util.FixPathEnvironmentVariable: %w", err)
 	}
 
+	firstNode, err := isFirstNode(spank)
+	if err != nil {
+		return fmt.Errorf("unable to determine isFirstNode: %w", err)
+	}
+
+	if initCluster && firstNode {
+		if err := runInitCluster(spank); err != nil {
+			return err
+		}
+	} else if joinCluster || (initCluster && !firstNode) {
+		if err := runJoinCluster(spank); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func getFirstNode(spank unsafe.Pointer) (string, error) {
+	jobHostListString, err := slurm.GetSlurmEnvVar(spank, "SLURM_JOB_NODELIST")
+	if err != nil {
+		return "", fmt.Errorf("unable to get SLURM_JOB_NODELIST: %w", err)
+	}
+
+	jobHostList := hostlist.ExpandNodeList(jobHostListString)
+
+	if len(jobHostList) == 0 {
+		return "", fmt.Errorf("host list is empty")
+	}
+
+	return jobHostList[0], nil
+}
+
+func isFirstNode(spank unsafe.Pointer) (bool, error) {
+	firstNode, err := getFirstNode(spank)
+	if err != nil {
+		return false, err
+	}
+
+	hostname, err := os.Hostname()
+	if err != nil {
+		return false, fmt.Errorf("unable to get hostname: %w", err)
+	}
+
+	return firstNode == hostname, nil
+}
+
+func runJoinCluster(spank unsafe.Pointer) error {
+	// Get SLURM_K8S env variables
+	bootstrapToken, err := slurm.GetSlurmEnvVar(spank, "SLURM_K8S_BOOTSTRAP_TOKEN")
+	if err != nil {
+		return fmt.Errorf("unable to retrieve SLURM_K8S_BOOTSTRAP_TOKEN env var: %w", err)
+	}
+
+	certHash, err := slurm.GetSlurmEnvVar(spank, "SLURM_K8S_CA_CERT_HASH")
+	if err != nil {
+		return fmt.Errorf("unable to retrieve SLURM_K8S_CA_CERT_HASH env var: %w", err)
+	}
+
+	apiEndpoint, err := slurm.GetSlurmEnvVar(spank, "SLURM_K8S_API_ENDPOINT")
+	if err != nil {
+		apiEndpoint, err = getFirstNode(spank)
+		if err != nil {
+			return err
+		}
+	}
+
+	// prepare
+	jobUser, err := slurm.GetJobUser(spank)
+	if err != nil {
+		return fmt.Errorf("slurm.GetJobUser: %w", err)
+	}
+
+	// run install
+	cmdResult, err := util.RunCommand(
+		"/home/simon/spank-go/bin/bootstrap-uk8s",
+		"--verbose",
+		"--simple-log",
+		fmt.Sprintf("--drop-uid=%v", jobUser.Uid),
+		fmt.Sprintf("--drop-gid=%v", jobUser.Gid),
+		"install",
+		"--force",
+	)
+	if err != nil {
+		return fmt.Errorf("install failed: %w", err)
+	}
+	if cmdResult.ExitCode != 0 {
+		return fmt.Errorf("install failed")
+	}
+
+	// run join
+	cmdResult, err = util.RunCommand(
+		"/home/simon/spank-go/bin/bootstrap-uk8s",
+		"--verbose",
+		"--simple-log",
+		fmt.Sprintf("--drop-uid=%v", jobUser.Uid),
+		fmt.Sprintf("--drop-gid=%v", jobUser.Gid),
+		"join",
+		fmt.Sprintf("--token=%v", bootstrapToken),
+		fmt.Sprintf("--api-server-endpoint=%v:6443", apiEndpoint),
+		fmt.Sprintf("--discovery-token-ca-cert-hash=sha256:%v", certHash),
+	)
+	if err != nil {
+		return fmt.Errorf("join failed: %w", err)
+	}
+	if cmdResult.ExitCode != 0 {
+		return fmt.Errorf("join failed")
+	}
+
+	return nil
+}
+
+func runInitCluster(spank unsafe.Pointer) error {
 	// Get SLURM_K8S env variables
 	bootstrapToken, err := slurm.GetSlurmEnvVar(spank, "SLURM_K8S_BOOTSTRAP_TOKEN")
 	if err != nil {
