@@ -8,7 +8,6 @@ import (
 	"github.com/s-bauer/slurm-k8s/internal/util"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"io/ioutil"
 	"os"
 	"path"
 )
@@ -19,8 +18,11 @@ var (
 )
 
 func childPhase1() error {
-	if err := saveCa(); err != nil {
-		return err
+	certB64 := viper.GetString("ca-cert-b64")
+	if certB64 != "" {
+		if err := saveCa(); err != nil {
+			return err
+		}
 	}
 
 	if err := util.WriteResult(util.ChildResult{}); err != nil {
@@ -107,11 +109,11 @@ func saveCa() error {
 		return fmt.Errorf("unable to create folder %v: %w", pkiFolder, err)
 	}
 
-	if err := ioutil.WriteFile(path.Join(pkiFolder, "ca.crt"), cert, 0611); err != nil {
+	if err := os.WriteFile(path.Join(pkiFolder, "ca.crt"), cert, 0611); err != nil {
 		return fmt.Errorf("unable to create ca.crt: %w", err)
 	}
 
-	if err := ioutil.WriteFile(path.Join(pkiFolder, "ca.key"), key, 0600); err != nil {
+	if err := os.WriteFile(path.Join(pkiFolder, "ca.key"), key, 0600); err != nil {
 		return fmt.Errorf("unable to create ca.key: %w", err)
 	}
 

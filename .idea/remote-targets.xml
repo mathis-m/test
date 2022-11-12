@@ -5,7 +5,7 @@
       <target name="simon@slurm01:22" type="ssh/sftp" uuid="7991c55d-8279-4318-a5ed-5b94b633cbe8">
         <config>
           <option name="projectRootOnTarget" value="/home/simon/spank-go" />
-          <option name="serverName" value="simon@slurm01:22 key" />
+          <option name="serverName" value="simon@slurm01:22 password" />
         </config>
         <ContributedStateBase type="GoLanguageRuntime">
           <config>
@@ -18,7 +18,7 @@
       <target name="simon@slurm02:22" type="ssh/sftp" uuid="72de4663-8f22-4f38-896a-ff009163659a">
         <config>
           <option name="projectRootOnTarget" value="/home/simon/spank-go" />
-          <option name="serverName" value="simon@slurm02:22 key" />
+          <option name="serverName" value="simon@slurm02:22" />
         </config>
         <ContributedStateBase type="GoLanguageRuntime">
           <config>
