@@ -96,7 +96,12 @@ func setEnvironmentVariables(vars environmentVariables) error {
 			return fmt.Errorf("unable to set environment variable %q: %w", key, err)
 		}
 
-		log.Infof("%v: %v", key, value)
+		logValue := value
+		if len(logValue) > 100 {
+			logValue = logValue[:100] + "..."
+		}
+
+		log.Infof("%v: %v", key, logValue)
 	}
 
 	return nil

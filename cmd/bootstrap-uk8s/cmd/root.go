@@ -41,13 +41,13 @@ var rootCmd = &cobra.Command{
 
 			if intendedUid >= 0 {
 				if err := syscall.Setreuid(intendedUid, intendedUid); err != nil {
-					log.Fatalf("unable to drop uid: %v", intendedUid)
+					log.Fatalf("unable to drop uid %v: %v", intendedUid, err)
 				}
 			}
 
 			if intendedGid >= 0 {
 				if err := syscall.Setregid(intendedGid, intendedGid); err != nil {
-					log.Fatalf("unable to drop gid: %v", intendedUid)
+					log.Fatalf("unable to drop gid %v: %v", intendedGid, err)
 				}
 			}
 
