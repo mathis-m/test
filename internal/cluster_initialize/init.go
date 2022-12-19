@@ -9,7 +9,7 @@ import (
 )
 
 // Initialize uses viper options:
-//    - restart
+//   - restart
 func Initialize() error {
 	isChild := util.IsInNamespace()
 

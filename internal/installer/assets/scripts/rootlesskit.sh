@@ -66,7 +66,7 @@ else
 
 	# CNi
 	mkdir -p /opt/cni/bin
-	mount --bind /home/simon/tmp/bin/cni /opt/cni/bin
+	mount --bind /home/mathis/tmp/bin/cni /opt/cni/bin
 
 	# Copy CNI config to /etc/cni/net.d (Likely to be hardcoded in CNI installers)
 	# mkdir -p /etc/cni/net.d

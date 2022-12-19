@@ -145,7 +145,14 @@ func startService(service *util.Service) error {
 		return err
 	}
 
-	logger.Info("service started")
+	status, err = service.Status()
+	if err != nil {
+		return err
+	}
+
+	logger.Info("status ", status)
+
+	logger.Info("service started ")
 	return nil
 }
 
