@@ -1,0 +1,12 @@
+apiVersion: core.bauer.link/v1
+kind: UserNode
+metadata:
+  labels:
+    app.kubernetes.io/name: usernode
+    app.kubernetes.io/instance: usernode-sample
+    app.kubernetes.io/part-of: slurm-k8s-manager
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: slurm-k8s-manager
+  name: usernode-sample
+spec:
+  # TODO(user): Add fields here

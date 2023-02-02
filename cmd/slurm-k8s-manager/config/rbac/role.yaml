@@ -40,3 +40,29 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - core.bauer.link
+  resources:
+  - usernodes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - core.bauer.link
+  resources:
+  - usernodes/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - core.bauer.link
+  resources:
+  - usernodes/status
+  verbs:
+  - get
+  - patch
+  - update

@@ -18,9 +18,11 @@ package main
 
 import (
 	"flag"
-	v1 "github.com/s-bauer/slurm-k8s/cmd/slurm-k8s-manager/api/v1"
 	"os"
+
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+
+	v1 "github.com/s-bauer/slurm-k8s/cmd/slurm-k8s-manager/api/v1"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -33,6 +35,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
+	corev1 "github.com/s-bauer/slurm-k8s/cmd/slurm-k8s-manager/api/v1"
 	"github.com/s-bauer/slurm-k8s/cmd/slurm-k8s-manager/controllers"
 	//+kubebuilder:scaffold:imports
 )
@@ -45,6 +48,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
+	utilruntime.Must(corev1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -100,6 +104,13 @@ func main() {
 	podAnnotationHandler := v1.NewPodValidator(mgr.GetClient())
 	mgr.GetWebhookServer().Register("/mutate-core-v1-pod", &webhook.Admission{Handler: podAnnotationHandler})
 
+	if err = (&controllers.UserNodeReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "UserNode")
+		os.Exit(1)
+	}
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {

@@ -21,4 +21,13 @@ resources:
   webhooks:
     defaulting: true
     webhookVersion: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: bauer.link
+  group: core
+  kind: UserNode
+  path: github.com/s-bauer/slurm-k8s/cmd/slurm-k8s-manager/api/v1
+  version: v1
 version: "3"

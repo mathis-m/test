@@ -1,0 +1,27 @@
+# permissions for end users to view usernodes.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: usernode-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: slurm-k8s-manager
+    app.kubernetes.io/part-of: slurm-k8s-manager
+    app.kubernetes.io/managed-by: kustomize
+  name: usernode-viewer-role
+rules:
+- apiGroups:
+  - core.bauer.link
+  resources:
+  - usernodes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - core.bauer.link
+  resources:
+  - usernodes/status
+  verbs:
+  - get
