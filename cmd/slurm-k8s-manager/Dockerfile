@@ -12,6 +12,7 @@ RUN go mod download
 # Copy the go source
 COPY ./cmd/slurm-k8s-manager/main.go cmd/slurm-k8s-manager/main.go
 COPY ./cmd/slurm-k8s-manager/controllers/ cmd/slurm-k8s-manager/controllers/
+COPY ./cmd/slurm-k8s-manager/api/ cmd/slurm-k8s-manager/api/
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o manager cmd/slurm-k8s-manager/main.go
