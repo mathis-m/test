@@ -104,13 +104,13 @@ func main() {
 	podAnnotationHandler := v1.NewPodValidator(mgr.GetClient())
 	mgr.GetWebhookServer().Register("/mutate-core-v1-pod", &webhook.Admission{Handler: podAnnotationHandler})
 
-	if err = (&controllers.UserNodeReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "UserNode")
-		os.Exit(1)
-	}
+	//if err = (&controllers.UserNodeReconciler{
+	//	Client: mgr.GetClient(),
+	//	Scheme: mgr.GetScheme(),
+	//}).SetupWithManager(mgr); err != nil {
+	//	setupLog.Error(err, "unable to create controller", "controller", "UserNode")
+	//	os.Exit(1)
+	//}
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
