@@ -20,6 +20,7 @@ import (
 	"context"
 	"k8s.io/apimachinery/pkg/util/json"
 	"net/http"
+	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -43,6 +44,7 @@ func NewPodValidator(c client.Client) admission.Handler {
 }
 
 func (a *podAnnotator) Handle(ctx context.Context, req admission.Request) admission.Response {
+	logger := log.FromContext(ctx)
 	pod := &corev1.Pod{}
 	err := a.decoder.Decode(req, pod)
 	if err != nil {
@@ -51,7 +53,11 @@ func (a *podAnnotator) Handle(ctx context.Context, req admission.Request) admiss
 
 	uid, needsImpersonation := pod.Annotations[impersonationRequestKey]
 
+	logger.Info("Checking Pod for annotation")
+
 	if needsImpersonation {
+		logger.Info("annotation exists for user", "uid", uid)
+
 		createOrUpdateTolerationForUid(pod, uid)
 	}
 
