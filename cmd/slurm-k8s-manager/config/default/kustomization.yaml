@@ -17,7 +17,6 @@ bases:
   - ../rbac
   - ../manager
 # [WEBHOOK] To enable webhook, uncomment all the sections with [WEBHOOK] prefix including the one in
-  - ../crd/kustomization.yaml
   - ../webhook
 # [CERTMANAGER] To enable cert-manager, uncomment all sections with 'CERTMANAGER'. 'WEBHOOK' components are required.
   - ../certmanager
@@ -35,7 +34,6 @@ patchesStrategicMerge:
 #- manager_config_patch.yaml
 
 # [WEBHOOK] To enable webhook, uncomment all the sections with [WEBHOOK] prefix including the one in
-  - ../crd/kustomization.yaml
   - manager_webhook_patch.yaml
 
 # [CERTMANAGER] To enable cert-manager, uncomment all sections with 'CERTMANAGER'.
