@@ -1,0 +1,45 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+  name: slurm-k8s-manager.v0.0.0
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: UserNode is the Schema for the usernodes API
+      displayName: User Node
+      kind: UserNode
+      name: usernodes.core.bauer.link
+      version: v1
+  description: slurm-k8s-manager
+  displayName: slurm-k8s-manager
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - slurm
+  - k8s
+  links:
+  - name: Slurm K8s Manager
+    url: https://slurm-k8s-manager.domain
+  maturity: alpha
+  provider:
+    name: slurm-k8s-manager
+  version: 0.0.0

@@ -4,20 +4,20 @@
     <targets>
       <target name="mathis@slurm01:22" type="ssh/sftp" uuid="7991c55d-8279-4318-a5ed-5b94b633cbe8">
         <config>
-          <option name="projectRootOnTarget" value="/home/mathis/spank-go" />
+          <option name="projectRootOnTarget" value="/home/mathis/slurm-k8s" />
           <option name="serverName" value="mathis@192.168.10.30:22 password" />
         </config>
         <ContributedStateBase type="GoLanguageRuntime">
           <config>
             <option name="goPath" value="/home/mathis/go" />
-            <option name="goRoot" value="/usr/bin/go" />
+            <option name="goRoot" value="/usr/local/go/bin/go" />
             <option name="goVersion" value="go1.18.3 linux/amd64" />
           </config>
         </ContributedStateBase>
       </target>
       <target name="mathis@slurm02:22" type="ssh/sftp" uuid="72de4663-8f22-4f38-896a-ff009163659a">
         <config>
-          <option name="projectRootOnTarget" value="/home/mathis/spank-go" />
+          <option name="projectRootOnTarget" value="/home/mathis/slurm-k8s" />
           <option name="serverName" value="mathis@192.168.10.31" />
         </config>
         <ContributedStateBase type="GoLanguageRuntime">
@@ -28,16 +28,68 @@
           </config>
         </ContributedStateBase>
       </target>
-      <target name="mathis@slurm03:22" type="ssh/sftp" uuid="fe9d243c-6a81-4951-8c72-28bc977d1d12">
+      <target name="new" type="ssh/sftp" uuid="fe9d243c-6a81-4951-8c72-28bc977d1d12">
         <config>
-          <option name="projectRootOnTarget" value="/home/mathis/spank-go" />
-          <option name="serverName" value="mathis@192.168.10.32" />
+          <option name="projectRootOnTarget" value="/home/mathis/slurm-k8s" />
+          <option name="serverName" value="mathis@192.168.10.30:22 key" />
+        </config>
+        <ContributedStateBase type="GoLanguageRuntime">
+          <config>
+            <option name="goPath" value="/home/mathis/go" />
+            <option name="goRoot" value="/usr/local/go/bin/go" />
+            <option name="goVersion" value="go1.18.3 linux/amd64" />
+          </config>
+        </ContributedStateBase>
+      </target>
+      <target name="mathis@192.168.10.30:22" type="ssh/sftp" uuid="a965f87a-dac9-49c8-b31d-f4aa6f317f64">
+        <config>
+          <option name="projectRootOnTarget" value="/home/mathis/slurm-k8s" />
+          <option name="serverName" value="mathis@192.168.10.30:22 password" />
         </config>
         <ContributedStateBase type="GoLanguageRuntime">
           <config>
             <option name="goPath" value="/home/mathis/go" />
             <option name="goRoot" value="/usr/bin/go" />
-            <option name="goVersion" value="go1.18.3 linux/amd64" />
+            <option name="goVersion" value="go1.18.1 linux/amd64" />
+          </config>
+        </ContributedStateBase>
+      </target>
+      <target name="mathis@192.168.10.30:222" type="ssh/sftp" uuid="eba612bf-53a4-4321-959a-9e58c489b1f5">
+        <config>
+          <option name="projectRootOnTarget" value="/home/mathis/slurm-k8s" />
+          <option name="serverName" value="mathis@192.168.10.30:22 key" />
+        </config>
+        <ContributedStateBase type="GoLanguageRuntime">
+          <config>
+            <option name="goPath" value="/home/mathis/go" />
+            <option name="goRoot" value="/usr/local/go/bin/go" />
+            <option name="goVersion" value="go1.13.5 linux/amd64" />
+          </config>
+        </ContributedStateBase>
+      </target>
+      <target name="mathis@192.168.10.30:223" type="ssh/sftp" uuid="0def71dc-1048-4656-be3a-38288b0d624e">
+        <config>
+          <option name="projectRootOnTarget" value="/home/mathis/slurm-k8s" />
+          <option name="serverName" value="mathis@192.168.10.30:22 password" />
+        </config>
+        <ContributedStateBase type="GoLanguageRuntime">
+          <config>
+            <option name="goPath" value="/home/mathis/go" />
+            <option name="goRoot" value="/usr/local/go/bin/go" />
+            <option name="goVersion" value="go1.20 linux/amd64" />
+          </config>
+        </ContributedStateBase>
+      </target>
+      <target name="mathis@192.168.10.31:22" type="ssh/sftp" uuid="fac07b5a-aa0e-4d73-8c24-199d106e8920">
+        <config>
+          <option name="projectRootOnTarget" value="/home/mathis/slurm-k8s" />
+          <option name="serverName" value="mathis@192.168.10.31:22 password" />
+        </config>
+        <ContributedStateBase type="GoLanguageRuntime">
+          <config>
+            <option name="goPath" value="/home/mathis/go" />
+            <option name="goRoot" value="/usr/bin/go" />
+            <option name="goVersion" value="go1.18.1 linux/amd64" />
           </config>
         </ContributedStateBase>
       </target>
