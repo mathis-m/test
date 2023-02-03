@@ -35,9 +35,7 @@ spec:
           spec:
             description: UserNodeSpec defines the desired state of UserNode
             properties:
-              foo:
-                description: Foo is an example field of UserNode. Edit usernode_types.go
-                  to remove/update
+              userid:
                 type: string
             type: object
           status:

@@ -56,6 +56,7 @@ func (r *UserNodeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *UserNodeReconciler) SetupWithManager(mgr ctrl.Manager) error {
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&corev1.UserNode{}).
 		Complete(r)

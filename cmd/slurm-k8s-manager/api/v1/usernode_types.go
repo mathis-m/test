@@ -28,8 +28,7 @@ type UserNodeSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of UserNode. Edit usernode_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	UserId string `json:"userid,omitempty"`
 }
 
 // UserNodeStatus defines the observed state of UserNode
@@ -61,4 +60,13 @@ type UserNodeList struct {
 
 func init() {
 	SchemeBuilder.Register(&UserNode{}, &UserNodeList{})
+}
+
+func (in *UserNodeList) GetUserNodeByUID(uid string) *UserNode {
+	for _, userNode := range in.Items {
+		if userNode.Spec.UserId == uid {
+			return &userNode
+		}
+	}
+	return nil
 }

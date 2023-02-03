@@ -19,7 +19,6 @@ package main
 import (
 	"flag"
 	"os"
-
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	v1 "github.com/s-bauer/slurm-k8s/cmd/slurm-k8s-manager/api/v1"
@@ -107,13 +106,13 @@ func main() {
 	mgr.GetWebhookServer().Register("/mutate-v1-pod", &webhook.Admission{Handler: podAnnotationHandler})
 	setupLog.Info("done")
 
-	//if err = (&controllers.UserNodeReconciler{
-	//	Client: mgr.GetClient(),
-	//	Scheme: mgr.GetScheme(),
-	//}).SetupWithManager(mgr); err != nil {
-	//	setupLog.Error(err, "unable to create controller", "controller", "UserNode")
-	//	os.Exit(1)
-	//}
+	if err = (&controllers.PodReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Pod")
+		os.Exit(1)
+	}
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
