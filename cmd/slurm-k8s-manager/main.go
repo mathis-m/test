@@ -101,8 +101,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	setupLog.Info("Setup pod validator")
+
 	podAnnotationHandler := v1.NewPodValidator(mgr.GetClient())
-	mgr.GetWebhookServer().Register("/mutate-core-v1-pod", &webhook.Admission{Handler: podAnnotationHandler})
+	mgr.GetWebhookServer().Register("/mutate-v1-pod", &webhook.Admission{Handler: podAnnotationHandler})
+	setupLog.Info("done")
 
 	//if err = (&controllers.UserNodeReconciler{
 	//	Client: mgr.GetClient(),
