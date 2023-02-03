@@ -18,9 +18,11 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-logr/logr"
 	v1 "github.com/s-bauer/slurm-k8s/cmd/slurm-k8s-manager/api/v1"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -146,6 +148,10 @@ func (r *PodReconciler) createUserNodeIfNeeded(ctx context.Context, uid string, 
 	userNodeOfUID = &v1.UserNode{
 		Spec: v1.UserNodeSpec{
 			UserId: uid,
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: "slurm-k8s-manager-system",
+			Name:      fmt.Sprintf("user-node-%s", uid),
 		},
 	}
 
