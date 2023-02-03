@@ -107,11 +107,15 @@ func (r *PodReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 					}
 
 					userNodeOfUID := userNodeList.GetUserNodeByUID(uid)
-					err = r.Delete(ctx, userNodeOfUID)
-					if err != nil || userNodeOfUID == nil {
-						logger.Error(err, "unable to delete user node", "node", userNodeOfUID)
-						removeFinalizer(pod)
-						return ctrl.Result{}, err
+					if userNodeOfUID != nil {
+						err = r.Delete(ctx, userNodeOfUID)
+						if err != nil || userNodeOfUID == nil {
+							logger.Error(err, "unable to delete user node", "node", userNodeOfUID)
+							removeFinalizer(pod)
+							return ctrl.Result{}, err
+						}
+					} else {
+						logger.Error(err, "user node does not exist anymore no need to finalize")
 					}
 				}
 
@@ -139,7 +143,7 @@ func (r *PodReconciler) createUserNodeIfNeeded(ctx context.Context, uid string, 
 	userNodeOfUID := userNodeList.GetUserNodeByUID(uid)
 
 	if userNodeOfUID != nil {
-		logger.Error(err, "user node found no need to create one", "namespace", nameSpaceName)
+		logger.Info("user node found no need to create one", "namespace", nameSpaceName)
 		return nil
 	}
 
