@@ -31,7 +31,7 @@ const (
 	userNodeKey             = "userNodeFor"
 )
 
-//+kubebuilder:webhook:path=/mutate-v1-pod,mutating=true,failurePolicy=fail,sideEffects=None,groups="",resources=pods,verbs=create;update,versions=v1beta1,name=mpod.kb.io,admissionReviewVersions=v1
+//+kubebuilder:webhook:path=/mutate-v1-pod,mutating=true,failurePolicy=fail,sideEffects=None,groups=*,resources=pods,verbs=create;update,versions=v1;v1beta1,name=mpod.kb.io,admissionReviewVersions=v1
 
 type podAnnotator struct {
 	Client  client.Client
