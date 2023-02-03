@@ -18,6 +18,7 @@ package v1
 
 import (
 	"context"
+	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/json"
 	"net/http"
@@ -50,6 +51,10 @@ func (a *podAnnotator) Handle(ctx context.Context, req admission.Request) admiss
 		return admission.Errored(http.StatusBadRequest, err)
 	}
 
+	if pod.Annotations == nil {
+		pod.Annotations = map[string]string{}
+	}
+
 	uid, needsImpersonation := pod.Annotations[impersonationRequestKey]
 
 	logger.Info("Checking Pod for annotation")
@@ -57,7 +62,7 @@ func (a *podAnnotator) Handle(ctx context.Context, req admission.Request) admiss
 	if needsImpersonation {
 		logger.Info("annotation exists for user", "uid", uid)
 
-		createOrUpdateTolerationForUid(pod, uid)
+		createOrUpdateTolerationForUid(pod, uid, logger)
 	}
 
 	marshaledPod, err := json.Marshal(pod)
@@ -67,21 +72,23 @@ func (a *podAnnotator) Handle(ctx context.Context, req admission.Request) admiss
 	return admission.PatchResponseFromRaw(req.Object.Raw, marshaledPod)
 }
 
-func createOrUpdateTolerationForUid(pod *corev1.Pod, uid string) {
+func createOrUpdateTolerationForUid(pod *corev1.Pod, uid string, logger logr.Logger) {
 	exists := false
-	for _, toleration := range pod.Spec.Tolerations {
-		if toleration.Key != userNodeKey {
-			continue
-		}
+	if pod.Spec.Tolerations != nil {
+		for _, toleration := range pod.Spec.Tolerations {
+			if toleration.Key != userNodeKey {
+				continue
+			}
 
-		exists = true
+			exists = true
 
-		if toleration.Value != userNodeKey {
-			toleration.Value = uid
-		}
+			if toleration.Value != userNodeKey {
+				toleration.Value = uid
+			}
 
-		if toleration.Effect != corev1.TaintEffectNoSchedule {
-			toleration.Effect = corev1.TaintEffectNoSchedule
+			if toleration.Effect != corev1.TaintEffectNoSchedule {
+				toleration.Effect = corev1.TaintEffectNoSchedule
+			}
 		}
 	}
 
