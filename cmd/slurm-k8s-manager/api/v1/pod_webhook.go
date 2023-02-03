@@ -62,6 +62,7 @@ func (a *podAnnotator) Handle(ctx context.Context, req admission.Request) admiss
 	if needsImpersonation {
 		logger.Info("annotation exists for user", "uid", uid)
 
+		createOrUpdateNodeSelector(pod, logger, uid)
 		createOrUpdateTolerationForUid(pod, uid, logger)
 	}
 
@@ -70,6 +71,15 @@ func (a *podAnnotator) Handle(ctx context.Context, req admission.Request) admiss
 		return admission.Errored(http.StatusInternalServerError, err)
 	}
 	return admission.PatchResponseFromRaw(req.Object.Raw, marshaledPod)
+}
+
+func createOrUpdateNodeSelector(pod *corev1.Pod, logger logr.Logger, uid string) {
+	if pod.Spec.NodeSelector == nil {
+		pod.Spec.NodeSelector = map[string]string{}
+	}
+
+	logger.Info("Adding new nodeSelector to pod")
+	pod.Spec.NodeSelector[userNodeKey] = uid
 }
 
 func createOrUpdateTolerationForUid(pod *corev1.Pod, uid string, logger logr.Logger) {
@@ -93,6 +103,7 @@ func createOrUpdateTolerationForUid(pod *corev1.Pod, uid string, logger logr.Log
 	}
 
 	if !exists {
+		logger.Info("Adding new toleration to pod")
 		newToleration := corev1.Toleration{
 			Key:      userNodeKey,
 			Operator: corev1.TolerationOpEqual,
