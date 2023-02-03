@@ -61,7 +61,7 @@ func (r *PodReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 			err := r.createUserNodeIfNeeded(ctx, uid, logger, req.NamespacedName)
 
 			if err != nil {
-				logger.Error(err, "unable to list user node resources", req.NamespacedName)
+				logger.Error(err, "unable to list user node resources", "namespace", req.NamespacedName)
 				return ctrl.Result{}, err
 			}
 			// The object is not being deleted, so if it does not have our finalizer,
