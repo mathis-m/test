@@ -1,0 +1,13 @@
+syntax = "proto3";
+package tutorial;
+
+
+option go_package = "github.com/s-bauer/slurm-k8s/internal/proto/pb";
+
+message JoinNode {
+  string uid = 1;
+  string certHash = 2;
+  string serverApiEndpoint = 3;
+  string token = 4;
+  bool isDelete = 5;
+}

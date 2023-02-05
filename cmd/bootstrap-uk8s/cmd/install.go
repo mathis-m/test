@@ -21,6 +21,8 @@ var installCmd = &cobra.Command{
 
 func init() {
 	installCmd.Flags().Bool("force", false, "overwrite existing installation")
+	installCmd.Flags().String("taints", "", "configure taints")
+	installCmd.Flags().String("labels", "", "configure initial labels")
 
 	_ = viper.BindPFlags(installCmd.Flags())
 

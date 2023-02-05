@@ -12,4 +12,4 @@ exec $(dirname $0)/nsenter.sh /usr/local/bin/kubelet \
 	--container-runtime=remote \
 	--container-runtime-endpoint=unix:///run/containerd/containerd.sock \
 	--pod-infra-container-image=k8s.gcr.io/pause:3.7 \
-  --node-ip=$parent_ip
+  --node-ip=$parent_ip $EXTRA_ARGS

@@ -21,7 +21,7 @@ func Exit(spank unsafe.Pointer) error {
 
 	// run uninstall
 	cmdResult, err := util.RunCommand(
-		"/home/simon/spank-go/bin/bootstrap-uk8s",
+		"/home/mathis/slurm-k8s/bin/bootstrap-uk8s",
 		"--verbose",
 		"--simple-log",
 		fmt.Sprintf("--drop-uid=%v", jobUser.Uid),

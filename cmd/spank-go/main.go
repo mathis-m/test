@@ -98,6 +98,30 @@ func slurm_spank_init(spank C.spank_t, ac C.int, av **C.char) C.int {
 		},
 	})
 
+	_ = slurm.RegisterOption(spankUnsafe, &slurm.Option{
+		Name:    "k8s-kublet-node-labels",
+		ArgInfo: "",
+		Usage:   "Initial Labels",
+		Value:   4,
+		HasArg:  1,
+		Callback: func(val int, optArg string, remote int) {
+			viper.Set("k8s-kublet-node-labels", optArg)
+			log.Info("OPTION: k8s-kublet-node-labels set")
+		},
+	})
+
+	_ = slurm.RegisterOption(spankUnsafe, &slurm.Option{
+		Name:    "k8s-kublet-node-taints",
+		ArgInfo: "",
+		Usage:   "Initial Taints",
+		Value:   4,
+		HasArg:  1,
+		Callback: func(val int, optArg string, remote int) {
+			viper.Set("k8s-kublet-node-taints", optArg)
+			log.Info("OPTION: k8s-kublet-node-taints set")
+		},
+	})
+
 	return C.ESPANK_SUCCESS
 }
 

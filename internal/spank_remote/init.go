@@ -147,6 +147,16 @@ func runJoinCluster(spank unsafe.Pointer) error {
 		}
 	}
 
+	labels, err := slurm.GetSlurmEnvVar(spank, "SLURM_K8S_LABELS")
+	if err != nil {
+		return fmt.Errorf("unable to retrieve SLURM_K8S_LABELS env var: %w", err)
+	}
+
+	taints, err := slurm.GetSlurmEnvVar(spank, "SLURM_K8S_TAINTS")
+	if err != nil {
+		return fmt.Errorf("unable to retrieve SLURM_K8S_TAINTS env var: %w", err)
+	}
+
 	// prepare
 	jobUser, err := slurm.GetJobUser(spank)
 	if err != nil {
@@ -155,13 +165,17 @@ func runJoinCluster(spank unsafe.Pointer) error {
 
 	// run install
 	cmdResult, err := util.RunCommand(
-		"/home/simon/spank-go/bin/bootstrap-uk8s",
+		"/home/mathis/slurm-k8s/bin/bootstrap-uk8s",
 		"--verbose",
 		"--simple-log",
 		fmt.Sprintf("--drop-uid=%v", jobUser.Uid),
 		fmt.Sprintf("--drop-gid=%v", jobUser.Gid),
 		"install",
 		"--force",
+		"--taints",
+		taints,
+		"--labels",
+		labels,
 	)
 	if err != nil {
 		return fmt.Errorf("install failed: %w", err)
@@ -172,7 +186,7 @@ func runJoinCluster(spank unsafe.Pointer) error {
 
 	// run join
 	cmdResult, err = util.RunCommand(
-		"/home/simon/spank-go/bin/bootstrap-uk8s",
+		"/home/mathis/slurm-k8s/bin/bootstrap-uk8s",
 		"--verbose",
 		"--simple-log",
 		fmt.Sprintf("--drop-uid=%v", jobUser.Uid),
@@ -224,7 +238,7 @@ func runInitCluster(spank unsafe.Pointer) error {
 
 	// run install
 	cmdResult, err := util.RunCommand(
-		"/home/simon/spank-go/bin/bootstrap-uk8s",
+		"/home/mathis/slurm-k8s/bin/bootstrap-uk8s",
 		"--verbose",
 		"--simple-log",
 		fmt.Sprintf("--drop-uid=%v", jobUser.Uid),
@@ -241,7 +255,7 @@ func runInitCluster(spank unsafe.Pointer) error {
 
 	// run init
 	cmdResult, err = util.RunCommand(
-		"/home/simon/spank-go/bin/bootstrap-uk8s",
+		"/home/mathis/slurm-k8s/bin/bootstrap-uk8s",
 		"--verbose",
 		"--simple-log",
 		fmt.Sprintf("--drop-uid=%v", jobUser.Uid),

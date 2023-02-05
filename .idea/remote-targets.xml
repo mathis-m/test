@@ -10,7 +10,7 @@
         <ContributedStateBase type="GoLanguageRuntime">
           <config>
             <option name="goPath" value="/home/mathis/go" />
-            <option name="goRoot" value="/usr/local/go/bin/go" />
+            <option name="goRoot" value="/usr/bin/go" />
             <option name="goVersion" value="go1.18.3 linux/amd64" />
           </config>
         </ContributedStateBase>
@@ -28,7 +28,7 @@
           </config>
         </ContributedStateBase>
       </target>
-      <target name="new" type="ssh/sftp" uuid="fe9d243c-6a81-4951-8c72-28bc977d1d12">
+      <target name="slum" type="ssh/sftp" uuid="fe9d243c-6a81-4951-8c72-28bc977d1d12">
         <config>
           <option name="projectRootOnTarget" value="/home/mathis/slurm-k8s" />
           <option name="serverName" value="mathis@192.168.10.30:22 key" />
@@ -90,6 +90,32 @@
             <option name="goPath" value="/home/mathis/go" />
             <option name="goRoot" value="/usr/bin/go" />
             <option name="goVersion" value="go1.18.1 linux/amd64" />
+          </config>
+        </ContributedStateBase>
+      </target>
+      <target name="slurm01 fin" type="ssh/sftp" uuid="0b47173a-bd38-4907-87c8-dfd2a82745aa">
+        <config>
+          <option name="projectRootOnTarget" value="/home/mathis/slurm-k8s" />
+          <option name="serverName" value="mathis@192.168.10.36:22 password" />
+        </config>
+        <ContributedStateBase type="GoLanguageRuntime">
+          <config>
+            <option name="goPath" value="/home/mathis/go" />
+            <option name="goRoot" value="/usr/local/go/bin/go" />
+            <option name="goVersion" value="go1.20 linux/amd64" />
+          </config>
+        </ContributedStateBase>
+      </target>
+      <target name="slurm02 fin" type="ssh/sftp" uuid="e9c57b2d-8dce-4007-9a20-bb228b9f8cf3">
+        <config>
+          <option name="projectRootOnTarget" value="/home/mathis/slurm-k8s" />
+          <option name="serverName" value="mathis@192.168.10.37:22 password" />
+        </config>
+        <ContributedStateBase type="GoLanguageRuntime">
+          <config>
+            <option name="goPath" value="/home/mathis/go" />
+            <option name="goRoot" value="/usr/local/go/bin/go" />
+            <option name="goVersion" value="go1.20 linux/amd64" />
           </config>
         </ContributedStateBase>
       </target>

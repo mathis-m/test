@@ -80,7 +80,7 @@ func copyScripts(paths *useful_paths.UsefulPaths, force bool) error {
 	return nil
 }
 
-func createSystemdServices(paths *useful_paths.UsefulPaths, force bool) error {
+func createSystemdServices(paths *useful_paths.UsefulPaths, force bool, extraArgs string) error {
 	if err := createSystemdService(
 		paths,
 		useful_paths.ServicesRootlesskit,
@@ -91,11 +91,17 @@ func createSystemdServices(paths *useful_paths.UsefulPaths, force bool) error {
 		return err
 	}
 
+	kubeletTemplate := serviceKubeletTemplateContent
+
+	if extraArgs != "" {
+		kubeletTemplate = fmt.Sprintf("%s\n%s", serviceKubeletTemplateContent, extraArgs)
+	}
+
 	if err := createSystemdService(
 		paths,
 		useful_paths.ServicesKubelet,
 		paths.Services.Kubelet,
-		serviceKubeletTemplateContent,
+		kubeletTemplate,
 		force,
 	); err != nil {
 		return err

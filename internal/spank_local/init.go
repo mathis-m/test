@@ -35,11 +35,15 @@ func runJoinCluster(spank unsafe.Pointer) error {
 	joinToken := viper.GetString("k8s-join-token")
 	certHash := viper.GetString("k8s-join-cert-hash")
 	apiEndpoint := viper.GetString("k8s-join-api-server")
+	labels := viper.GetString("k8s-kublet-node-labels")
+	taints := viper.GetString("k8s-kublet-node-taints")
 
 	if err := setEnvironmentVariables(environmentVariables{
 		Token:       joinToken,
 		CaCertHash:  certHash,
 		ApiEndpoint: apiEndpoint,
+		Labels:      labels,
+		Taints:      taints,
 	}); err != nil {
 		return err
 	}
@@ -76,6 +80,8 @@ type environmentVariables struct {
 	CaKeyB64    string
 	CaCertHash  string
 	ApiEndpoint string
+	Labels      string
+	Taints      string
 }
 
 func setEnvironmentVariables(vars environmentVariables) error {
@@ -85,6 +91,8 @@ func setEnvironmentVariables(vars environmentVariables) error {
 		"SLURM_K8S_CA_CERT":         vars.CaCertB64,
 		"SLURM_K8S_CA_KEY":          vars.CaKeyB64,
 		"SLURM_K8S_API_ENDPOINT":    vars.ApiEndpoint,
+		"SLURM_K8S_LABELS":          vars.Labels,
+		"SLURM_K8S_TAINTS":          vars.Taints,
 	}
 
 	for key, value := range envVars {
