@@ -41,8 +41,8 @@ type PodReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=core,resources=pods/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=core,resources=pods,verbs=create;delete
+//+kubebuilder:rbac:groups=core,resources=pods/status,verbs=update;patch
 //+kubebuilder:rbac:groups=core,resources=pods/finalizers,verbs=update
 
 func (r *PodReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
@@ -115,7 +115,7 @@ func (r *PodReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 							return ctrl.Result{}, err
 						}
 					} else {
-						logger.Error(err, "user node does not exist anymore no need to finalize")
+						logger.Info("user node does not exist anymore no need to finalize")
 					}
 				}
 
