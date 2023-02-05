@@ -154,7 +154,7 @@ func (r *PodReconciler) createUserNodeIfNeeded(ctx context.Context, uid string, 
 			UserId: uid,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: "slurm-k8s-manager-system",
+			Namespace: "default",
 			Name:      fmt.Sprintf("user-node-%s", uid),
 		},
 	}
