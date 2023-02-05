@@ -116,6 +116,10 @@ func (r *PodReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 						}
 					} else {
 						logger.Info("user node does not exist anymore no need to finalize")
+						removeFinalizer(pod)
+						if err := r.Update(ctx, &pod); err != nil {
+							return ctrl.Result{}, err
+						}
 					}
 				}
 
