@@ -84,7 +84,7 @@ func (r *PodReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 				err := r.List(ctx, &allPodsOnNode, client.MatchingFields{"spec.nodeName": pod.Spec.NodeName})
 				if err != nil {
 					logger.Info("unable to get actual node", pod.Spec.NodeName, err)
-					removeFinalizer(pod)
+					err := r.removeFinalizer(pod, ctx)
 					return ctrl.Result{}, err
 				}
 
@@ -102,7 +102,7 @@ func (r *PodReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 					err := r.List(ctx, &userNodeList)
 					if err != nil {
 						logger.Error(err, "unable to list user node resources")
-						removeFinalizer(pod)
+						err := r.removeFinalizer(pod, ctx)
 						return ctrl.Result{}, err
 					}
 
@@ -111,22 +111,18 @@ func (r *PodReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 						err = r.Delete(ctx, userNodeOfUID)
 						if err != nil || userNodeOfUID == nil {
 							logger.Error(err, "unable to delete user node", "node", userNodeOfUID)
-							removeFinalizer(pod)
+							err := r.removeFinalizer(pod, ctx)
 							return ctrl.Result{}, err
 						}
 					} else {
 						logger.Info("user node does not exist anymore no need to finalize")
-						removeFinalizer(pod)
-						if err := r.Update(ctx, &pod); err != nil {
-							return ctrl.Result{}, err
-						}
+						err := r.removeFinalizer(pod, ctx)
+						return ctrl.Result{}, err
 					}
 				}
 
-				removeFinalizer(pod)
-				if err := r.Update(ctx, &pod); err != nil {
-					return ctrl.Result{}, err
-				}
+				err = r.removeFinalizer(pod, ctx)
+				return ctrl.Result{}, err
 			}
 
 			// Stop reconciliation as the item is being deleted
@@ -166,13 +162,20 @@ func (r *PodReconciler) createUserNodeIfNeeded(ctx context.Context, uid string, 
 	return r.Create(ctx, userNodeOfUID)
 }
 
-func removeFinalizer(pod corev1.Pod) {
+func (r *PodReconciler) removeFinalizer(pod corev1.Pod, ctx context.Context) error {
+	hasUpdate := false
 	for i, name := range pod.Finalizers {
 		if name == finalizerName {
 			pod.Finalizers = append(pod.Finalizers[:i], pod.Finalizers[i+1:]...)
+			hasUpdate = true
 			break
 		}
 	}
+	if hasUpdate {
+		return r.Update(ctx, &pod)
+	}
+
+	return nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
